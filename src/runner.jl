@@ -150,11 +150,15 @@ function gen_runner_code(testfilename, logfilename, test_args)
             include($(repr(testfilename)))
         end
 
+        # Test for problems before flattening, because flattening
+        # potentially removes testsets from the ts hierarchy
+        ap = any_problems(ts)
+
         # Flatten before calling `report` to avoid a `deepcopy`.
         open($(repr(logfilename)), "w") do io
             prettyprint(io, report(TestReports.flatten_results!(ts)))
         end
-        any_problems(ts) && exit(TestReports.TESTS_FAILED)
+        ap && exit(TestReports.TESTS_FAILED)
         """
     return runner_code
 end
